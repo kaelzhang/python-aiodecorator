@@ -27,7 +27,7 @@ settings = dict(
     url = 'https://github.com/kaelzhang/python-aiodecorator',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     install_requires=read_requirements('requirements.txt'),
     tests_require=read_requirements('test-requirements.txt'),
     classifiers=[

@@ -5,7 +5,11 @@
 
 # aiodecorator
 
-Python decorators for asyncio
+Python decorators for asyncio, including
+
+- throttle
+<!-- - limit -->
+<!-- - timeout -->
 
 ## Install
 
@@ -16,8 +20,39 @@ $ pip install aiodecorator
 ## Usage
 
 ```py
-import aiodecorator
+import time
+import asyncio
+
+from aiodecorator import (
+    throttle
+)
+
+now = time.time()
+
+
+# The throttled function is only called twice a second
+@throttle(2, 1)
+async def throttled(index: int):
+    diff = format(time.time - now, '.0f')
+    print(index, f'{diff}s')
+
+
+async def main():
+    loop = asyncio.get_running_loop()
+    tasks = [
+        loop.create_task(throttled(index))
+        for index in range(5)
+    ]
+
+    await asyncio.wait(tasks)
+
+
+asyncio.run(main())
 ```
+
+## APIs
+
+### throttle(limit: int, interval: Union[float, int])
 
 ## License
 
