@@ -1,30 +1,38 @@
 import time
 import asyncio
+import pytest
 
 from aiodecorator import (
     throttle
 )
 
 
+# -----------------------------------------------------
 # The throttled function is only called twice a second
 @throttle(5, 1)
 async def throttled(index: int, now: float):
-    diff = format(time.time() - now, '.0f')
-    print(index, f'{diff}s')
+    return format(time.time() - now, '.0f')
+# -----------------------------------------------------
 
 
-def test_main():
+@pytest.mark.asyncio
+async def test_throttle():
     now = time.time()
 
-    async def main():
-        loop = asyncio.get_running_loop()
-        tasks = [
-            loop.create_task(throttled(index, now))
-            for index in range(20)
-        ]
+    loop = asyncio.get_running_loop()
+    tasks = [
+        loop.create_task(throttled(index, now))
+        for index in range(20)
+    ]
 
-        await asyncio.wait(tasks)
+    unpacked = [
+        [str(i)] * 5
+        for i in range(4)
+    ]
 
-        await throttled(30, now)
+    expected = [
+        i
+        for l in unpacked for i in l
+    ]
 
-    asyncio.run(main())
+    assert await asyncio.gather(*tasks) == expected
