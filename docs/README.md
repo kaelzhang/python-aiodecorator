@@ -7,7 +7,7 @@
 
 Python decorators for asyncio, including
 
-- throttle
+- **throttle**: Throttle a (coroutine) function that return an `Awaitable`
 <!-- - limit -->
 <!-- - timeout -->
 
