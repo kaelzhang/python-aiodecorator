@@ -30,11 +30,13 @@ from aiodecorator import (
 now = time.time()
 
 
+# -----------------------------------------------------
 # The throttled function is only called twice a second
 @throttle(2, 1)
 async def throttled(index: int):
     diff = format(time.time - now, '.0f')
     print(index, f'{diff}s')
+# -----------------------------------------------------
 
 
 async def main():
