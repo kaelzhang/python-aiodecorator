@@ -43,7 +43,7 @@ def throttle(
                 # And we could execute the function immediately
 
             elif throttler.count < limit:
-                # It does not exceed the limit, just go ahead
+                # It does not exceed the limit of the current tick pointer
                 throttler.count += 1
 
             else:
@@ -51,8 +51,11 @@ def throttle(
                 throttler.tick += interval
                 throttler.count = 1
 
+            sleep = throttler.tick - now
+
+            if sleep > 0:
                 # Throttle!
-                await asyncio.sleep(throttler.tick - now)
+                await asyncio.sleep(sleep)
 
             return await fn(*args, **kwargs)
 

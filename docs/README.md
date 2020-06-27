@@ -48,11 +48,23 @@ async def main():
 
 
 asyncio.run(main())
+
+# Output
+# 0 0s
+# 1 0s
+# 2 1s
+# 3 1s
+# 4 2s
 ```
 
 ## APIs
 
 ### throttle(limit: int, interval: Union[float, int])
+
+- **limit** `int` Maximum number of calls within an `interval`.
+- **interval** `Union[int, float]` Timespan for limit in seconds.
+
+Returns a decorator function
 
 ## License
 
