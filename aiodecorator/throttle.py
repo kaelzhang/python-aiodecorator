@@ -27,6 +27,22 @@ def throttle(
     limit: int,
     interval: float
 ) -> Decorator:
+    """
+    Throttle the function to be called no more than `limit` times
+    in `interval` seconds.
+
+    Args:
+        limit: The maximum number of times the function can be called
+            in the given interval.
+        interval (float | int): The time interval in seconds.
+
+    Example:
+        >>> @throttle(limit=10, interval=1)
+        >>> def my_function():
+        >>>     pass
+
+        >>> # The function will be called at most 10 times per second
+    """
     def decorator(fn: Func) -> Func:
         throttler = Throttler()
 
