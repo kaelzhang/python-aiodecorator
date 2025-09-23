@@ -1,7 +1,7 @@
-__version__ = '1.0.3'
+__version__ = '2.0.0'
 
-__all__ = (
-    'throttle'
+
+from .throttle import (
+    throttle,
+    ThrottleType
 )
-
-from .throttle import throttle

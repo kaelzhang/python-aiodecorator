@@ -1,5 +1,7 @@
 import time
 import asyncio
+import functools
+from typing import Literal
 
 from .common import (
     Decorator,
@@ -23,9 +25,13 @@ class Throttler:
         self.count = 0
 
 
+ThrottleType = Literal['ignore', 'wait']
+
+
 def throttle(
     limit: int,
-    interval: float
+    interval: float,
+    throttle_type: ThrottleType = 'ignore',
 ) -> Decorator:
     """
     Throttle the function to be called no more than `limit` times
@@ -35,6 +41,9 @@ def throttle(
         limit: The maximum number of times the function can be called
             in the given interval.
         interval (float | int): The time interval in seconds.
+        throttle_type (str): The type of throttle.
+            - 'ignore': ignore the function call and return `None` if it exceeds the limit.
+            - 'wait': wait for the next tick to execute the function.
 
     Example:
         >>> @throttle(limit=10, interval=1)
@@ -43,9 +52,11 @@ def throttle(
 
         >>> # The function will be called at most 10 times per second
     """
+
     def decorator(fn: Func) -> Func:
         throttler = Throttler()
 
+        @functools.wraps(fn)
         async def helper(*args, **kwargs) -> T:
             now = time.time()
 
@@ -70,8 +81,11 @@ def throttle(
             sleep = throttler.tick - now
 
             if sleep > 0:
-                # Throttle!
-                await asyncio.sleep(sleep)
+                if throttle_type == 'ignore':
+                    return
+                elif throttle_type == 'wait':
+                    # Throttle!
+                    await asyncio.sleep(sleep)
 
             return await fn(*args, **kwargs)
 
