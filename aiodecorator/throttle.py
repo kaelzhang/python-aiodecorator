@@ -57,7 +57,7 @@ def throttle(
         throttler = Throttler()
 
         @functools.wraps(fn)
-        async def helper(*args, **kwargs) -> T:
+        async def wrapper(*args, **kwargs) -> T:
             now = time.time()
 
             if now - throttler.tick > interval:
@@ -89,6 +89,6 @@ def throttle(
 
             return await fn(*args, **kwargs)
 
-        return helper
+        return wrapper
 
     return decorator
