@@ -1,7 +1,14 @@
 import functools
 import asyncio
-from typing import Callable, Literal
+from typing import Literal
 from datetime import datetime, timedelta
+
+from .common import (
+    Decorator,
+    Func,
+    T
+)
+
 
 
 NaturalInterval = Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']
@@ -42,23 +49,27 @@ def _seconds_to_next(unit: NaturalInterval) -> float:
     return delta.total_seconds()
 
 
-def schedule_natually(on: NaturalInterval, delay: float = 0.):
+def schedule_natually(on: NaturalInterval, delay: float = 0.) -> Decorator:
     """
     Returns a decorator that schedules the function `fn`
     to run at natural intervals.
 
+    Args:
+        on: `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']` The interval to schedule the function
+        delay: `float = 0.` The delay before the function is called
+
     For example::
 
-        @schedule_natually(interval='daily')
+        @schedule_natually(on='daily', delay=60)
         async def my_function():
             pass
 
-    The function will be called at 00:00:00 the next day.
+    The function will be called at 00:01:00 the next day.
     """
 
-    def decorator(fn: Callable):
+    def decorator(fn: Func) -> Func:
         @functools.wraps(fn)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs) -> T:
             wait = _seconds_to_next(on) + delay
             await asyncio.sleep(wait)
             return await fn(*args, **kwargs)

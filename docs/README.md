@@ -76,6 +76,42 @@ asyncio.run(run('ignore'))
 
 Returns a decorator function
 
+### schedule_naturally(on, delay: float = 0.)
+
+- **on** `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']`
+- **delay** `float = 0.`
+
+Returns a decorator function that schedule a function `fn` to run from the next time moment with a delay `delay`
+
+For example:
+
+```py
+@schedule_natually(on: 'daily', delay = 60)
+async def run():
+    print('hello')
+
+await run()
+
+# It will print 'hello' at 00:01 in the next day
+```
+
+### repeat(times: int, interval: float = 0.)
+
+- **times** `int` the number of times to repeat the function
+- **interval** `float = 0.` the interval between each call
+
+```py
+@repeat(7)
+@schedule_naturally(on: 'daily')
+@repeat(3)
+async def run()
+    print('hello')
+
+await run()
+
+# It will schedule a one-week plan, at 00:00:00 each day, it will print 3 'hello'
+```
+
 ## License
 
 [MIT](LICENSE)

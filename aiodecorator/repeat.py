@@ -1,37 +1,43 @@
-from typing import Callable
 import functools
 import asyncio
+
+from .common import (
+    Decorator,
+    Func,
+    T
+)
 
 
 REPEAT_INFINITY = -1
 
 
-def repeat(n: int, interval: float = 0.):
+def repeat(times: int, interval: float = 0.) -> Decorator:
     """
     Returns a decorator that repeats the function `fn`
     `n` times with `interval` seconds between each call
+
+    Args:
+        times: `int` The number of times to repeat the function
+        interval: `float = 0.` The interval between each call
     """
 
-    def decorator(fn: Callable):
+    def decorator(fn: Func) -> Func:
         @functools.wraps(fn)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs) -> T:
             result = None
 
-            if n == REPEAT_INFINITY:
+            if times == REPEAT_INFINITY:
                 while True:
                     result = await fn(*args, **kwargs)
                     if interval > 0:
                         await asyncio.sleep(interval)
 
             else:
-                for _ in range(n):
+                for _ in range(times):
                     result = await fn(*args, **kwargs)
 
                     if interval > 0:
-                        # try:
                         await asyncio.sleep(interval)
-                        # except asyncio.CancelledError as e:
-                            # raise e
 
             return result
         return wrapper
