@@ -3,7 +3,7 @@ import asyncio
 
 from aiodecorator import (
     repeat, REPEAT_INFINITY,
-    schedule_natually
+    schedule_naturally
 )
 
 
@@ -95,7 +95,7 @@ async def test_schedule_natually():
     count = 0
 
     @repeat(-1)
-    @schedule_natually('secondly')
+    @schedule_naturally('secondly')
     async def test():
         nonlocal count
         count += 1

@@ -12,5 +12,5 @@ from .repeat import (
 )
 
 from .schedule import (
-    schedule_natually
+    schedule_naturally
 )

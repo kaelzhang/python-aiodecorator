@@ -3,10 +3,10 @@ test_files = *
 # test_target = exception_handler
 
 test:
-	STOCK_PANDAS_COW=1 pytest -s -v test/test_$(test_files).py --doctest-modules --cov stock_pandas --cov-config=.coveragerc --cov-report term-missing
+	pytest -s -v test/test_$(test_files).py --doctest-modules --cov aiodecorator --cov-config=.coveragerc --cov-report term-missing
 
 test-ci:
-	pytest -s -v test/test_$(test_files).py --doctest-modules --cov handy_nn --cov-config=.coveragerc --cov-report=xml
+	pytest -s -v test/test_$(test_files).py --doctest-modules --cov aiodecorator --cov-config=.coveragerc --cov-report=xml
 
 lint:
 	@echo "\033[1m>> Running ruff... <<\033[0m"
@@ -16,7 +16,7 @@ lint:
 
 fix:
 	ruff check --fix $(files)
-q
+
 install:
 	pip install -U .[dev]
 
