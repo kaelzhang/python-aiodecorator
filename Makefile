@@ -1,27 +1,42 @@
 files = aiodecorator test *.py
 test_files = *
+# test_target = exception_handler
 
 test:
-	pytest -s -v test/test_$(test_files).py --doctest-modules --cov aiodecorator --cov-config=.coveragerc --cov-report term-missing
+	STOCK_PANDAS_COW=1 pytest -s -v test/test_$(test_files).py --doctest-modules --cov stock_pandas --cov-config=.coveragerc --cov-report term-missing
+
+test-ci:
+	pytest -s -v test/test_$(test_files).py --doctest-modules --cov handy_nn --cov-config=.coveragerc --cov-report=xml
 
 lint:
-	flake8 $(files)
+	@echo "\033[1m>> Running ruff... <<\033[0m"
+	@ruff check $(files)
+	@echo "\033[1m>> Running mypy... <<\033[0m"
+	@mypy $(files)
 
 fix:
-	autopep8 --in-place -r $(files)
-
+	ruff check --fix $(files)
+q
 install:
-	pip install -U -r requirements.txt -r test-requirements.txt
+	pip install -U .[dev]
 
 report:
 	codecov
 
-build: aiodecorator
-	rm -rf dist
-	python setup.py sdist bdist_wheel
+clean:
+	rm -rf dist build
+	rm -rf aiodecorator.egg-info/
+	rm -rf aiodecorator/aiodecorator.egg-info/
+
+build:
+	make clean
+	@python -m build --sdist --wheel
+
+build-doc:
+	sphinx-build -b html docs build_docs
 
 publish:
 	make build
 	twine upload --config-file ~/.pypirc -r pypi dist/*
 
-.PHONY: test build
+.PHONY: test build report install

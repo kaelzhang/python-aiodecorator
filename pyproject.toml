@@ -1,0 +1,76 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+# See https://github.com/scipy/scipy/pull/12940 for the AIX issue.
+
+# Should sync to [project.optional-dependencies]
+requires = [
+  "setuptools",
+  "build"
+]
+
+build-backend = "setuptools.build_meta"
+
+[project]
+name = 'aiodecorator'
+dynamic = ['version']
+description='Binance Python SDK'
+readme = 'README.md'
+authors = [
+  { name = 'kaelzhang', email='i+github@kael.me' }
+]
+license = { text = "MIT" }
+requires-python = '>=3.6'
+dependencies = []
+classifiers=[
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Natural Language :: English',
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'Development Status :: 4 - Beta',
+    'Topic :: Utilities'
+]
+
+[project.urls]
+Homepage = "https://github.com/kaelzhang/python-aiodecorator"
+
+[project.optional-dependencies]
+dev = [
+  "codecov",
+  "coverage",
+  "ruff",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+  "twine",
+  "setuptools",
+  "mypy",
+  "build"
+]
+
+[tool.setuptools]
+packages = [
+  'aiodecorator'
+]
+license-files = []
+
+[tool.setuptools.dynamic]
+version = {attr = "aiodecorator.__version__"}
+
+[tool.setuptools.package-data]
+aiodecorator = [
+  "py.typed"
+]
+
+[tool.mypy]
+warn_return_any = true
+ignore_missing_imports = true
+no_implicit_optional = true
+strict_optional = true
+disable_error_code = ['return-value', 'no-any-return']
