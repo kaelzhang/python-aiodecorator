@@ -87,13 +87,13 @@ Returns a decorator function that schedule a function `fn` to run from the next 
 For example:
 
 ```py
-@schedule_natually('daily', delay = timedelta(seconds=60))
+@schedule_natually('daily', delay = timedelta(seconds=50))
 async def run():
     print('hello')
 
 await run()
 
-# It will print 'hello' at 00:01 in the next day
+# It will print 'hello' at 00:00:50 in the next day
 ```
 
 ```py
@@ -108,7 +108,7 @@ async def run_weekly():
 
 await run_weekly()
 
-# It will print 'hello' at 05:00 every Wednesday
+# It will print 'hello' at 00:05 every Wednesday
 ```
 
 ### repeat(times: int, interval: float = 0.)
