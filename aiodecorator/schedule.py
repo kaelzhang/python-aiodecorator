@@ -174,7 +174,7 @@ def schedule_naturally(
 ) -> Decorator:
     """
     Returns a decorator that schedules the function `fn`
-    to run at natural intervals.
+    to run once at the next time slot matching the condition.
 
     Args:
         unit: `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']` The unit of the interval to schedule the next function call

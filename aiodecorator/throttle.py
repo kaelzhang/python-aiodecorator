@@ -35,7 +35,7 @@ def throttle(
 ) -> Decorator:
     """
     Throttle the function to be called no more than `limit` times
-    in `interval` seconds.
+    in every `interval` seconds.
 
     Args:
         limit: The maximum number of times the function can be called
