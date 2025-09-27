@@ -118,7 +118,7 @@ await run_weekly()
 
 ```py
 @repeat(7)
-@schedule_naturally(on: 'daily')
+@schedule_naturally('daily')
 @repeat(3)
 async def run()
     print('hello')
