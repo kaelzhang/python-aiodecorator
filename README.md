@@ -76,23 +76,39 @@ asyncio.run(run('ignore'))
 
 Returns a decorator function
 
-### schedule_naturally(on, delay: float = 0.)
+### schedule_naturally(unit, delay: delay, weekday)
 
-- **on** `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']`
-- **delay** `float = 0.`
+- **unit** `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']`
+- **delay** `timedelta = timedelta(seconds=0)`
+- **weekday** `Weekday` only used when `unit` is `'weekly'`
 
 Returns a decorator function that schedule a function `fn` to run from the next time moment with a delay `delay`
 
 For example:
 
 ```py
-@schedule_natually(on: 'daily', delay = 60)
+@schedule_natually('daily', delay = timedelta(seconds=60))
 async def run():
     print('hello')
 
 await run()
 
 # It will print 'hello' at 00:01 in the next day
+```
+
+```py
+@repeat(-1)
+@schedule_naturally(
+    'weekly',
+    delay = timedelta(minutes=5),
+    weekday = 'Wednesday'
+)
+async def run_weekly():
+    print('hello')
+
+await run_weekly()
+
+# It will print 'hello' at 05:00 every Wednesday
 ```
 
 ### repeat(times: int, interval: float = 0.)

@@ -1,6 +1,6 @@
 files = aiodecorator test *.py
 test_files = *
-# test_target = exception_handler
+# test_files = schedule
 
 test:
 	pytest -s -v test/test_$(test_files).py --doctest-modules --cov aiodecorator --cov-config=.coveragerc --cov-report term-missing

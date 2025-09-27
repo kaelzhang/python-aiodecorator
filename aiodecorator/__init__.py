@@ -1,4 +1,4 @@
-__version__ = '2.1.0'
+__version__ = '3.0.0'
 
 
 from .throttle import (
@@ -12,5 +12,7 @@ from .repeat import (
 )
 
 from .schedule import (
-    schedule_naturally
+    schedule_naturally,
+    NaturalUnit,
+    Weekday
 )

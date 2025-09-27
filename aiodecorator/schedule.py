@@ -23,9 +23,7 @@ def next_second(
     _: Weekday,
     step: int
 ) -> datetime:
-    return (
-        now + timedelta(seconds=1)
-    ).replace(microsecond=0) - timedelta(seconds=step)
+    return (now + timedelta(seconds=1 - step)).replace(microsecond=0)
 
 
 def next_minute(
@@ -81,6 +79,9 @@ def next_week(
 
     days = days % 7
 
+    if days == 0:
+        days = 7
+
     return (
         now + timedelta(days=days - step * 7)
     ).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -127,7 +128,10 @@ class TimeScheduler:
 
         while True:
             step += 1
-            previous_time = self._get_next_time(next_time, day, step) + delay
+            previous_time = self._get_next_time(now, day, step) + delay
+
+            # if the previous time is now, actually the time already passed
+            # so we should return the next time
             if previous_time <= now:
                 # If the previous time is before the current time,
                 # then the next time is the next time.
@@ -149,25 +153,37 @@ SCHEDULERS = {
 }
 
 ZERO_TIMEDELTA = timedelta(seconds=0)
+DEFAULT_WEEKDAY = 'monday'
+
+
+def get_time_to_wait(
+    now: datetime,
+    unit: NaturalUnit,
+    weekday: Weekday,
+    delay: timedelta
+) -> timedelta:
+    scheduler = SCHEDULERS[unit]
+    next_time = scheduler.next_time(now, weekday, delay)
+    return next_time - now
 
 
 def schedule_naturally(
     unit: NaturalUnit,
     delay: timedelta = ZERO_TIMEDELTA,
-    weekday: Weekday = 'monday'
+    weekday: Weekday = DEFAULT_WEEKDAY
 ) -> Decorator:
     """
     Returns a decorator that schedules the function `fn`
     to run at natural intervals.
 
     Args:
-        unit: `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']` The interval to schedule the function
-        delay: `Timedelta = None` The delay before the function is called
+        unit: `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']` The unit of the interval to schedule the next function call
+        delay: `timedelta = timedelta(seconds=0)` The delay before the function is called
         weekday: `Weekday = 'monday'` The day of the week to schedule the function, only used when `unit` is `weekly`
 
     For example::
 
-        @schedule_natually(unit='daily', delay=timedelta(seconds=60))
+        @schedule_naturally(unit='daily', delay=timedelta(seconds=60))
         async def my_function():
             pass
 
@@ -177,10 +193,7 @@ def schedule_naturally(
     def decorator(fn: Func) -> Func:
         @functools.wraps(fn)
         async def wrapper(*args, **kwargs) -> T:
-            scheduler = SCHEDULERS[unit]
-            now = datetime.now()
-            next_time = scheduler.next_time(now, weekday, delay)
-            wait = next_time - now
+            wait = get_time_to_wait(datetime.now(), unit, weekday, delay)
 
             await asyncio.sleep(wait.total_seconds())
             return await fn(*args, **kwargs)
