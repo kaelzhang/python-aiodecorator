@@ -18,7 +18,7 @@ readme = 'README.md'
 authors = [
   { name = 'kaelzhang', email='i+github@kael.me' }
 ]
-license = { text = "MIT" }
+license-files = ['LICENSE']
 requires-python = '>=3.6'
 dependencies = []
 classifiers=[
@@ -58,7 +58,6 @@ dev = [
 packages = [
   'aiodecorator'
 ]
-license-files = []
 
 [tool.setuptools.dynamic]
 version = {attr = "aiodecorator.__version__"}
