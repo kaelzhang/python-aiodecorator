@@ -76,7 +76,7 @@ asyncio.run(run('ignore'))
 
 Returns a decorator function
 
-### schedule_naturally(unit, delay: delay, weekday)
+### schedule_naturally(unit, delay, weekday)
 
 - **unit** `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']`
 - **delay** `timedelta = timedelta(seconds=0)`

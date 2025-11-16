@@ -32,7 +32,7 @@ async def test_throttle():
         for lst in unpacked for i in lst
     ]
 
-    print(expected)
+    print('expected:', expected)
 
     assert await asyncio.gather(*tasks) == expected
 
