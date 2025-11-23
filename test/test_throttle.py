@@ -90,13 +90,37 @@ async def test_throttle_replace():
 
 
 @pytest.mark.asyncio
-async def test_throttle_replace_not_swallow_cancel_error():
+async def test_throttle_external_cancel_error():
+    """Test that external cancellation (not from throttler) propagates correctly through line 64."""
+
+    @throttle(1, 1, 'wait')  # Use 'wait' to avoid throttler cancellation
+    async def throttled():
+        # This will be externally canceled while running
+        await asyncio.sleep(1)  # Long enough to be canceled
+        return "should not reach here"
+
+    # Test the external cancellation path directly
+    task = asyncio.create_task(throttled())
+
+    # Let the task start and enter the context manager
+    await asyncio.sleep(0.01)
+
+    # Cancel the task externally (this should trigger line 64)
+    task.cancel()
+
+    # This should raise CancelledError (from line 64), not ThrottleCanceledError
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+
+@pytest.mark.asyncio
+async def test_throttle_replace_with_external_cancel():
+    """Test throttle replace behavior when some tasks are externally canceled."""
     @throttle(5, 1, 'replace')
     async def throttled(index: int, now: float):
         return format(time.time() - now, '.0f')
 
     now = time.time()
-
     errors = {}
 
     async def test_throttled(index: int):
@@ -110,8 +134,7 @@ async def test_throttle_replace_not_swallow_cancel_error():
             errors[index] = False
             return result
         except asyncio.CancelledError:
-            # This is the error that raised by task.cancel() above,
-            # but throttler.cancel() should not raise this error.
+            # This is the error that raised by task.cancel() above
             errors[index] = True
             return None
 
@@ -134,11 +157,6 @@ async def test_throttle_replace_not_swallow_cancel_error():
 
     # Convert errors dict to list in index order
     errors_list = [errors[i] for i in range(20)]
-
-    # print('result:', result)
-    # print('expected:', expected)
-    # print('errors:', errors_list)
-    # print('expected_errors:', expected_errors)
 
     assert result == expected
     assert errors_list == expected_errors
