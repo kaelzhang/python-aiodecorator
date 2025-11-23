@@ -65,7 +65,7 @@ async def test_throttle_ignore():
 
 @pytest.mark.asyncio
 async def test_throttle_replace():
-    @throttle(5, 1, 'replace', True)
+    @throttle(5, 1, 'replace')
     async def throttled(index: int, now: float):
         return format(time.time() - now, '.0f')
 
@@ -91,21 +91,28 @@ async def test_throttle_replace():
 
 @pytest.mark.asyncio
 async def test_throttle_replace_not_swallow_cancel_error():
-    @throttle(5, 1, 'replace', False)
+    @throttle(5, 1, 'replace')
     async def throttled(index: int, now: float):
         return format(time.time() - now, '.0f')
 
     now = time.time()
 
-    errors = []
+    errors = {}
 
     async def test_throttled(index: int):
+        task = asyncio.create_task(throttled(index, now))
+
+        if index == 10:
+            task.cancel()
+
         try:
-            result = await throttled(index, now)
-            errors.append(False)
+            result = await task
+            errors[index] = False
             return result
         except asyncio.CancelledError:
-            errors.append(True)
+            # This is the error that raised by task.cancel() above,
+            # but throttler.cancel() should not raise this error.
+            errors[index] = True
             return None
 
     tasks = [
@@ -114,7 +121,7 @@ async def test_throttle_replace_not_swallow_cancel_error():
     ]
 
     expected_errors = [
-        False if i == 19 or i < 4 else True
+        True if i == 10 else False
         for i in range(20)
     ]
 
@@ -125,5 +132,13 @@ async def test_throttle_replace_not_swallow_cancel_error():
         for i in range(20)
     ]
 
+    # Convert errors dict to list in index order
+    errors_list = [errors[i] for i in range(20)]
+
+    # print('result:', result)
+    # print('expected:', expected)
+    # print('errors:', errors_list)
+    # print('expected_errors:', expected_errors)
+
     assert result == expected
-    assert errors == expected_errors
+    assert errors_list == expected_errors

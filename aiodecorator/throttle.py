@@ -20,18 +20,21 @@ class Throttler:
     __slots__ = (
         'tick',
         'count',
-        'task'
+        'task',
+        '_canceled_tasks'
     )
 
     # A tick is a clock tick with interval `interval`
     tick: float
     count: int
     task: Optional[asyncio.Task]
+    _canceled_tasks: set
 
     def __init__(self):
         self.tick = 0.
         self.count = 0
         self.task = None
+        self._canceled_tasks = set()
 
     def set_task(
         self,
@@ -41,12 +44,24 @@ class Throttler:
 
     def cancel(self):
         if self.task is not None:
+            self._canceled_tasks.add(self.task)  # Remember which task we canceled
             self.task.cancel()
             self.task = None
 
     @contextlib.contextmanager
-    def context(self):
-        ...
+    def context(self, task: asyncio.Task):
+        try:
+            yield
+        except asyncio.CancelledError:
+            # If this specific task was canceled by the throttler,
+            # convert it to ThrottleCanceledError
+            if task in self._canceled_tasks:
+                # Clear the reference
+                self._canceled_tasks.discard(task)
+                raise ThrottleCanceledError("Throttler was canceled")
+            else:
+                # This is an external cancellation, let it propagate
+                raise
 
 
 ThrottleType = Literal['ignore', 'wait', 'replace']
@@ -55,8 +70,7 @@ ThrottleType = Literal['ignore', 'wait', 'replace']
 def throttle(
     limit: int,
     interval: float,
-    throttle_type: ThrottleType = 'ignore',
-    swallow_cancel_error: bool = False,
+    throttle_type: ThrottleType = 'ignore'
 ) -> Decorator:
     """
     Throttle the function to be called no more than `limit` times
@@ -70,7 +84,6 @@ def throttle(
             - 'ignore': ignore the function call and return `None` if it exceeds the limit.
             - 'wait': wait for the next tick to execute the function.
             - 'replace': try to cancel the last function call, let it return `None` and execute the current function call.
-        swallow_cancel_error (bool = False): Whether to swallow the inner `asyncio.CancelledError` error if throttle_type is 'replace'.
 
     Example::
 
@@ -80,9 +93,6 @@ def throttle(
 
         # The function will be called at most 10 times per second
     """
-
-    if throttle_type != 'replace':
-        swallow_cancel_error = False
 
     def decorator(fn: Func) -> Func:
         throttler = Throttler()
@@ -125,17 +135,10 @@ def throttle(
             throttler.set_task(task)
 
             try:
-                async with throttler.context():
+                with throttler.context(task):
                     result = await task
             except ThrottleCanceledError:
                 return None
-            except asyncio.CancelledError as e:
-                # Which is the inner `asyncio.CancelledError` error
-                # and not the one from the `throttle` decorator
-                if not swallow_cancel_error:
-                    raise e
-                else:
-                    return None
 
             return result
 
