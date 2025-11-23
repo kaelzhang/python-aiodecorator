@@ -80,21 +80,6 @@ asyncio.run(run('ignore'))
 
 Returns a decorator function
 
-### repeat(times: int, interval: float = 0)
-
-- **times** `int` The number of times to repeat the function
-- **interval**: `float = 0.` The interval between each call. Default to no interval.
-
-Returns a decorator that repeats the function `fn`.
-
-```py
-@repeat(3, interval=1)
-async def my_function():
-    pass
-```
-
-The function will be called 3 times with 1 second between each call.
-
 ### schedule_naturally(unit, delay, weekday)
 
 - **unit** `Literal['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly']`
@@ -138,13 +123,13 @@ await run_weekly()
 ```py
 @repeat(7)
 @schedule_naturally('daily')
-@repeat(3)
+@repeat(3, 0.1)
 async def run()
     print('hello')
 
 await run()
 
-# It will schedule a one-week plan, at 00:00:00 each day, it will print 3 'hello'
+# It will schedule a one-week plan, at 00:00:00 each day, it prints "hello" three times, with 100 ms between each print.
 ```
 
 ### timeout(seconds: int | None)
