@@ -1,4 +1,4 @@
-__version__ = '3.0.4'
+__version__ = '3.1.0'
 
 
 from .throttle import (
@@ -15,4 +15,8 @@ from .schedule import (
     schedule_naturally,
     NaturalUnit,
     Weekday
+)
+
+from .timeout import (
+    timeout,
 )

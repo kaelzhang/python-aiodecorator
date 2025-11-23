@@ -8,6 +8,8 @@
 Python decorators for asyncio, including
 
 - **throttle**: Throttle a (coroutine) function that return an `Awaitable`
+- **repeat**: Repeat a function
+- **schedule_naturally**: Schedule a function to run from the next time moment
 <!-- - limit -->
 <!-- - timeout -->
 
@@ -70,11 +72,27 @@ asyncio.run(run('ignore'))
 
 - **limit** `int` Maximum number of calls within an `interval`.
 - **interval** `Union[int, float]` Timespan for limit in seconds.
-- **throttle_type** `Literal['ignore', 'wait'] = 'ignore'`
+- **throttle_type** `Literal['ignore', 'wait', 'replace'] = 'ignore'`
   - 'ignore': ignore the function call and return `None` if it exceeds the limit.
   - 'wait': wait for the next tick to execute the function.
+  - 'replace': try to cancel the last function call, let it return `None` and execute the current function call
 
 Returns a decorator function
+
+### repeat(times: int, interval: float = 0)
+
+- **times** `int` The number of times to repeat the function
+- **interval**: `float = 0.` The interval between each call. Default to no interval.
+
+Returns a decorator that repeats the function `fn`.
+
+```py
+@repeat(3, interval=1)
+async def my_function():
+    pass
+```
+
+The function will be called 3 times with 1 second between each call.
 
 ### schedule_naturally(unit, delay, weekday)
 
