@@ -23,3 +23,14 @@ async def test_timeout_no_seconds():
         return 'done'
 
     assert await my_function() == 'done'
+
+@pytest.mark.asyncio
+async def test_timeout_at():
+    loop = asyncio.get_running_loop()
+    @timeout(at=loop.time() + 1)
+    async def my_function():
+        await asyncio.sleep(2)
+        return 'done'
+
+    with pytest.raises(asyncio.TimeoutError):
+        await my_function()

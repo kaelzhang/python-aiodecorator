@@ -9,13 +9,15 @@ from .common import (
 
 
 def timeout(
-    seconds: int | None = None
+    seconds: int | None = None,
+    at: float | None = None
 ) -> Decorator:
     """
     Make the function automatically cancel itself if it takes too long to execute.
 
     Args:
-        seconds (int): seconds to timeout
+        seconds (int | None = None): seconds to timeout
+        at (float | None = None): deadline to timeout, `at` has higher priority than `seconds`
 
     Example::
 
@@ -30,6 +32,10 @@ def timeout(
         @functools.wraps(fn)
         async def wrapper(*args, **kwargs) -> T:
             coro = fn(*args, **kwargs)
+
+            if at is not None:
+                async with asyncio.timeout_at(at):
+                    return await coro
 
             if seconds is None or seconds <= 0:
                 return await coro

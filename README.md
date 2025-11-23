@@ -132,11 +132,12 @@ await run()
 # It will schedule a one-week plan, at 00:00:00 each day, it prints "hello" three times, with 100 ms between each print.
 ```
 
-### timeout(seconds: int | None)
+### timeout(seconds: int | None, at: float | None)
 
 > New in 3.1.0
 
 - **seconds** `int | None = None` seconds to time out. If `seconds <= 0` or `seconds` is `None`, there will be no timeout.
+- **at** (float | None = None): deadline to timeout, `at` has higher priority than `seconds`
 
 Make the function automatically cancel itself if it takes longer than `seconds` seconds.
 
