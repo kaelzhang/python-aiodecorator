@@ -7,6 +7,7 @@
 
 Python decorators for asyncio, including
 
+- **timeout**: Set the timeout for a function
 - **throttle**: Throttle a (coroutine) function that return an `Awaitable`
 - **repeat**: Repeat a function
 - **schedule_naturally**: Schedule a function to run from the next time moment
@@ -144,6 +145,25 @@ async def run()
 await run()
 
 # It will schedule a one-week plan, at 00:00:00 each day, it will print 3 'hello'
+```
+
+### timeout(seconds: int | None)
+
+- **seconds** `int | None = None` seconds to time out. If `seconds <= 0` or `seconds` is `None`, there will be no timeout.
+
+Make the function automatically cancel itself if it takes longer than `seconds` seconds.
+
+```py
+@timeout(1)
+async def my_function():
+    await asyncio.sleep(2)
+
+try:
+    await my_function():
+except asyncio.TimeoutError:
+    print('timeout')
+
+# It will print 'timeout'
 ```
 
 ## License
