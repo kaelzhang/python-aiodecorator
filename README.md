@@ -76,7 +76,7 @@ asyncio.run(run('ignore'))
 - **throttle_type** `Literal['ignore', 'wait', 'replace'] = 'ignore'`
   - 'ignore': ignore the function call and return `None` if it exceeds the limit.
   - 'wait': wait for the next tick to execute the function.
-  - 'replace': try to cancel the last function call, let it return `None` and execute the current function call
+  - 'replace': try to cancel the last function call, let it return `None` and execute the current function call. (New in `3.1.0`)
 
 Returns a decorator function
 
@@ -148,6 +148,8 @@ await run()
 ```
 
 ### timeout(seconds: int | None)
+
+> New in 3.1.0
 
 - **seconds** `int | None = None` seconds to time out. If `seconds <= 0` or `seconds` is `None`, there will be no timeout.
 
