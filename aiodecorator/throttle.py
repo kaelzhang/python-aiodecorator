@@ -1,6 +1,8 @@
 import time
 import asyncio
 import functools
+import contextlib
+
 from typing import Literal, Optional
 
 from .common import (
@@ -8,6 +10,10 @@ from .common import (
     Func,
     T
 )
+
+
+class ThrottleCanceledError(asyncio.CancelledError):
+    pass
 
 
 class Throttler:
@@ -27,10 +33,20 @@ class Throttler:
         self.count = 0
         self.task = None
 
+    def set_task(
+        self,
+        task: asyncio.Task,
+    ) -> None:
+        self.task = task
+
     def cancel(self):
         if self.task is not None:
             self.task.cancel()
             self.task = None
+
+    @contextlib.contextmanager
+    def context(self):
+        ...
 
 
 ThrottleType = Literal['ignore', 'wait', 'replace']
@@ -54,7 +70,7 @@ def throttle(
             - 'ignore': ignore the function call and return `None` if it exceeds the limit.
             - 'wait': wait for the next tick to execute the function.
             - 'replace': try to cancel the last function call, let it return `None` and execute the current function call.
-        swallow_cancel_error (bool = False): Whether to swallow the `asyncio.CancelledError` error if throttle_type is 'replace'.
+        swallow_cancel_error (bool = False): Whether to swallow the inner `asyncio.CancelledError` error if throttle_type is 'replace'.
 
     Example::
 
@@ -106,11 +122,16 @@ def throttle(
                     throttler.cancel()
 
             task = asyncio.create_task(fn(*args, **kwargs))
-            throttler.task = task
+            throttler.set_task(task)
 
             try:
-                result = await task
+                async with throttler.context():
+                    result = await task
+            except ThrottleCanceledError:
+                return None
             except asyncio.CancelledError as e:
+                # Which is the inner `asyncio.CancelledError` error
+                # and not the one from the `throttle` decorator
                 if not swallow_cancel_error:
                     raise e
                 else:
