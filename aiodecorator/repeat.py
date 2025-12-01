@@ -26,7 +26,7 @@ def repeat(times: int, interval: float = 0.) -> Decorator:
         async def my_function():
             pass
 
-    The function will be called 3 times with 1 second between each call.
+        # The function will be called 3 times with 1 second between each call.
     """
 
     def decorator(fn: Func) -> Func:

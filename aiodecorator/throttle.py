@@ -81,9 +81,9 @@ def throttle(
             in the given interval.
         interval (float | int): The time interval in seconds.
         throttle_type (str): The type of throttle.
-            - 'ignore': ignore the function call and return `None` if it exceeds the limit.
-            - 'wait': wait for the next tick to execute the function.
-            - 'replace': try to cancel the last function call, let it return `None` and execute the current function call.
+        - 'ignore': ignore the function call and return `None` if it exceeds the limit.
+        - 'wait': wait for the next tick to execute the function.
+        - 'replace': try to cancel the last function call, let it return `None` and execute the current function call.
 
     Example::
 
