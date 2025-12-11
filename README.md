@@ -38,7 +38,8 @@ async def run(throttle_type):
     # The throttled function is only called twice a second
     @throttle(2, 1, throttle_type)
     async def throttled(index: int):
-        diff = format(time.time - now, '.0f')
+        await asyncio.sleep(0.1)
+        diff = format(time.time() - now, '.0f')
         print(index, f'{diff}s')
     # -----------------------------------------------------
 
@@ -53,7 +54,7 @@ async def run(throttle_type):
 
 asyncio.run(run('wait'))
 
-# Output
+# Output: queued
 # 0 0s
 # 1 0s
 # 2 1s
@@ -62,9 +63,16 @@ asyncio.run(run('wait'))
 
 asyncio.run(run('ignore'))
 
-# Output
+# Output: 2, 3, 4 are ignored
 # 0 0s
 # 1 0s
+
+
+asyncio.run(run('replace'))
+
+# Output: 1, 2, 3 are canceled
+# 0 0s
+# 4 0s
 ```
 
 ## APIs
